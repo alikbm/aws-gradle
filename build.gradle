@@ -1,0 +1,54 @@
+apply plugin: 'java'
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.756'
+    }
+
+}
+
+import com.amazonaws.services.ec2.AmazonEC2
+import com.amazonaws.services.ec2.AmazonEC2ClientBuilder
+import com.amazonaws.services.ec2.model.DescribeVpcsRequest
+import com.amazonaws.services.ec2.model.DescribeVpcsResult
+import com.amazonaws.services.ec2.model.DescribeVpcPeeringConnectionsRequest
+import com.amazonaws.services.ec2.model.DescribeVpcPeeringConnectionsResult
+
+import com.amazonaws.services.ec2.model.Vpc
+import com.amazonaws.services.ec2.model.VpcPeeringConnection
+import com.amazonaws.auth.AWSCredentialsProvider
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.auth.profile.ProfilesConfigFile
+
+tasks.register("vpc") {
+
+    group = 'AWS'
+    description = 'print pvc:s information'
+
+    doLast {
+
+        File configFile = new File(System.getProperty("user.home"), ".aws/credentials")
+        AWSCredentialsProvider credentialsProvider =
+                new ProfileCredentialsProvider( new ProfilesConfigFile(configFile), "default")
+
+        if (credentialsProvider.getCredentials() == null) {
+            throw new RuntimeException("No AWS security credentials found:\n"
+                    + "Make sure you've configured your credentials in: " + configFile.getAbsolutePath())
+        }
+
+        // Create the AmazonEC2 client so we can call various APIs.
+        AmazonEC2 client = AmazonEC2ClientBuilder.standard().build()
+        
+        // Continue here ....
+
+    }
+}
